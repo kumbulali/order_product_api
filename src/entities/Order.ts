@@ -1,8 +1,16 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { Product } from "./Product";
 
 @Entity("orders")
-export class Order {
+export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   order_id: number;
 
@@ -11,4 +19,10 @@ export class Order {
 
   @OneToMany((type) => Product, (item) => item.product_id)
   items: Product[];
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }

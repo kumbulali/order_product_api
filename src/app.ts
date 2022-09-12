@@ -7,6 +7,7 @@ import userRoutes from "./routes/users.route";
 import "reflect-metadata";
 import { dataSource } from "./config/dataSource";
 import productRoutes from "./routes/products.route";
+import orderRoutes from "./routes/order.route";
 
 const NAMESPACE = "Server";
 const router = express();
@@ -59,6 +60,7 @@ router.use((req, res, next) => {
 /** Routes go here */
 router.use("/api/users", userRoutes);
 router.use("/api/products", productRoutes);
+router.use("/api/orders", orderRoutes);
 
 /** Error handling */
 router.use((req, res, next) => {

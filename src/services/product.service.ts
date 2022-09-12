@@ -71,7 +71,11 @@ export async function updateProduct(
       })
       .where("product_id = :product_id", { product_id: id })
       .execute();
-    return callBack(null, product);
+    console.log(product);
+    if (product.affected == 1) {
+      return callBack(null, "success");
+    }
+    return callBack(0, "failed");
   } catch (error) {
     console.log(error);
     return callBack(error);

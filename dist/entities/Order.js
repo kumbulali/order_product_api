@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 const typeorm_1 = require("typeorm");
 const Product_1 = require("./Product");
-let Order = class Order {
+let Order = class Order extends typeorm_1.BaseEntity {
 };
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
@@ -26,6 +26,14 @@ __decorate([
     (0, typeorm_1.OneToMany)((type) => Product_1.Product, (item) => item.product_id),
     __metadata("design:type", Array)
 ], Order.prototype, "items", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Order.prototype, "created_at", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], Order.prototype, "updated_at", void 0);
 Order = __decorate([
     (0, typeorm_1.Entity)("orders")
 ], Order);

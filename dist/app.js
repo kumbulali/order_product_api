@@ -12,6 +12,7 @@ const users_route_1 = __importDefault(require("./routes/users.route"));
 require("reflect-metadata");
 const dataSource_1 = require("./config/dataSource");
 const products_route_1 = __importDefault(require("./routes/products.route"));
+const order_route_1 = __importDefault(require("./routes/order.route"));
 const NAMESPACE = "Server";
 const router = (0, express_1.default)();
 dataSource_1.dataSource
@@ -46,6 +47,7 @@ router.use((req, res, next) => {
 /** Routes go here */
 router.use("/api/users", users_route_1.default);
 router.use("/api/products", products_route_1.default);
+router.use("/api/orders", order_route_1.default);
 /** Error handling */
 router.use((req, res, next) => {
     const error = new Error("Not found");

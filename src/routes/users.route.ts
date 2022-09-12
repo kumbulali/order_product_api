@@ -7,7 +7,7 @@ import {
   getUserByUsernameController,
   getUserByEmailController,
   updateUserController,
-} from "../controllers/users.controller";
+} from "../controllers/user.controller";
 
 const userRoutes = Router();
 

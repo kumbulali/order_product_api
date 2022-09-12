@@ -179,6 +179,12 @@ function updateProductController(req, res, next) {
                         message: "Database connection error occured.",
                     });
                 }
+                if (results != null) {
+                    return res.status(500).json({
+                        success: 0,
+                        message: "An error occured while updating product info.",
+                    });
+                }
                 return res.status(500).json({
                     success: 0,
                     message: err.message,
@@ -186,7 +192,7 @@ function updateProductController(req, res, next) {
             }
             return res.status(200).json({
                 success: 1,
-                data: results.raw,
+                message: "Product successfully updated.",
             });
         });
     });
