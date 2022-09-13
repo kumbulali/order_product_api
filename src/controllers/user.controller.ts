@@ -102,6 +102,12 @@ export async function getUserByEmailController(
         message: err.message,
       });
     }
+    if (results == null) {
+      return res.status(200).json({
+        success: 1,
+        message: "This user does not exists.",
+      });
+    }
     return res.status(200).json({
       success: 1,
       data: results,
@@ -139,6 +145,12 @@ export async function getUserByIdController(
         message: err.message,
       });
     }
+    if (results == null) {
+      return res.status(200).json({
+        success: 1,
+        message: "This user does not exists.",
+      });
+    }
     return res.status(200).json({
       success: 1,
       data: results,
@@ -174,6 +186,12 @@ export async function getUserByUsernameController(
       return res.status(500).json({
         success: 0,
         message: err.message,
+      });
+    }
+    if (results == null) {
+      return res.status(200).json({
+        success: 1,
+        message: "This user does not exists.",
       });
     }
     return res.status(200).json({

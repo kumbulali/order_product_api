@@ -1,16 +1,36 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
+import { Cart } from "./Cart";
 
-@Entity("products")
+@Entity()
 export class Product extends BaseEntity {
   @PrimaryGeneratedColumn()
-  product_id: number;
+  id: number;
 
   @Column()
-  product_name: string;
+  name: string;
 
   @Column({ nullable: true })
   amount: number;
 
   @Column()
   price: number;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @OneToMany((type) => Cart, (cart) => cart.id)
+  @JoinColumn()
+  cart: Cart[];
 }

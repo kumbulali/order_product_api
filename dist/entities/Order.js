@@ -12,20 +12,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 const typeorm_1 = require("typeorm");
 const Product_1 = require("./Product");
+const User_1 = require("./User");
 let Order = class Order extends typeorm_1.BaseEntity {
 };
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    (0, typeorm_1.PrimaryGeneratedColumn)("uuid"),
     __metadata("design:type", Number)
-], Order.prototype, "order_id", void 0);
+], Order.prototype, "id", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)((type) => Product_1.Product, (item) => item.id),
+    __metadata("design:type", Array)
+], Order.prototype, "items", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)((type) => User_1.User, (user) => user.username),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", User_1.User)
+], Order.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
-], Order.prototype, "user_id", void 0);
+], Order.prototype, "subTotal", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)((type) => Product_1.Product, (item) => item.product_id),
-    __metadata("design:type", Array)
-], Order.prototype, "items", void 0);
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], Order.prototype, "pending", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
@@ -35,6 +45,6 @@ __decorate([
     __metadata("design:type", Date)
 ], Order.prototype, "updated_at", void 0);
 Order = __decorate([
-    (0, typeorm_1.Entity)("orders")
+    (0, typeorm_1.Entity)()
 ], Order);
 exports.Order = Order;

@@ -1,6 +1,8 @@
 import { dataSource } from "../config/dataSource";
 import { User } from "../entities/User";
 
+const userRepository = dataSource.getRepository(User);
+
 export async function createUser(data: User, callBack: Function) {
   try {
     var user = new User();
@@ -9,7 +11,7 @@ export async function createUser(data: User, callBack: Function) {
     user.email = data.email;
     //user.role = data.role | undefined;
 
-    await dataSource.manager.save(user);
+    await userRepository.save(user);
     return callBack(null, user);
   } catch (error) {
     console.log(error);
@@ -29,7 +31,7 @@ export async function getAllUsers(callBack: Function) {
 
 export async function getUserById(id: number, callBack: Function) {
   try {
-    const user = await User.findOneBy({ user_id: id });
+    const user = await userRepository.findOneBy({ id: id });
     return callBack(null, user);
   } catch (error) {
     console.log(error);
@@ -39,7 +41,7 @@ export async function getUserById(id: number, callBack: Function) {
 
 export async function getUserByUsername(username: string, callBack: Function) {
   try {
-    const user = await User.findOneBy({ username: username });
+    const user = await userRepository.findOneBy({ username: username });
     return callBack(null, user);
   } catch (error) {
     console.log(error);
@@ -49,7 +51,7 @@ export async function getUserByUsername(username: string, callBack: Function) {
 
 export async function getUserByEmail(email: string, callBack: Function) {
   try {
-    const user = await User.findOneBy({ email: email });
+    const user = await userRepository.findOneBy({ email: email });
     return callBack(null, user);
   } catch (error) {
     console.log(error);
@@ -67,17 +69,30 @@ export async function updateUser(
   callBack: Function
 ) {
   try {
-    const user = await dataSource
-      .createQueryBuilder()
-      .update(User)
-      .set({
-        username: data.username,
-        email: data.email,
-        password: data.password,
-      })
-      .where("user_id = :user_id", { user_id: id })
-      .execute();
-    return callBack(null, user);
+    const userToUpdate = await userRepository
+      .findOneBy({ id: id })
+      .then((user) => {
+        if (user instanceof User) {
+          if (data.username) {
+            user.username = data.username;
+          }
+          if (data.email) {
+            user.email = data.email;
+          }
+          if (data.password) {
+            user.password = data.password;
+          }
+          return user;
+        } else {
+          return null;
+        }
+      });
+    if (userToUpdate instanceof User) {
+      await userRepository.save(userToUpdate);
+      return callBack(null, userToUpdate);
+    } else {
+      return callBack(Error("Failed to update user."));
+    }
   } catch (error) {
     console.log(error);
     return callBack(error);
@@ -86,13 +101,13 @@ export async function updateUser(
 
 export async function deleteUser(id: number, callBack: Function) {
   try {
-    await dataSource
-      .createQueryBuilder()
-      .delete()
-      .from(User)
-      .where("user_id = :user_id", { user_id: id })
-      .execute();
-    return callBack(null);
+    const userToRemove = await userRepository.findOneBy({ id: id });
+    if (userToRemove instanceof User) {
+      await userRepository.remove(userToRemove);
+      return callBack(null, userToRemove);
+    } else {
+      return callBack(Error("Failed to remove user."));
+    }
   } catch (error) {
     console.log(error);
     callBack(error);

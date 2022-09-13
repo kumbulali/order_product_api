@@ -3,22 +3,32 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Product } from "./Product";
+import { User } from "./User";
 
-@Entity("orders")
+@Entity()
 export class Order extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  order_id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: number;
+
+  @OneToMany((type) => Product, (item) => item.id)
+  items: Product[];
+
+  @OneToOne((type) => User, (user) => user.username)
+  @JoinColumn()
+  user: User;
 
   @Column()
-  user_id: number;
+  subTotal: number;
 
-  @OneToMany((type) => Product, (item) => item.product_id)
-  items: Product[];
+  @Column({ default: false })
+  pending: boolean;
 
   @CreateDateColumn()
   created_at: Date;

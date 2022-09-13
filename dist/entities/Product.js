@@ -11,16 +11,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Product = void 0;
 const typeorm_1 = require("typeorm");
+const Cart_1 = require("./Cart");
 let Product = class Product extends typeorm_1.BaseEntity {
 };
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], Product.prototype, "product_id", void 0);
+], Product.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Product.prototype, "product_name", void 0);
+], Product.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
@@ -29,7 +30,20 @@ __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], Product.prototype, "price", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Product.prototype, "created_at", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], Product.prototype, "updated_at", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)((type) => Cart_1.Cart, (cart) => cart.id),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", Array)
+], Product.prototype, "cart", void 0);
 Product = __decorate([
-    (0, typeorm_1.Entity)("products")
+    (0, typeorm_1.Entity)()
 ], Product);
 exports.Product = Product;

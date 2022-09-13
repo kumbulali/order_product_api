@@ -5,7 +5,7 @@ import { Product } from "../entities/Product";
 export async function createProduct(data: Product, callBack: Function) {
   try {
     var product = new Product();
-    product.product_name = data.product_name;
+    product.name = data.name;
     product.amount = data.amount;
     product.price = data.price;
     //product.role = data.role | undefined;
@@ -30,7 +30,7 @@ export async function getAllProducts(callBack: Function) {
 
 export async function getProductById(id: number, callBack: Function) {
   try {
-    const product = await Product.findOneBy({ product_id: id });
+    const product = await Product.findOneBy({ id: id });
     return callBack(null, product);
   } catch (error) {
     console.log(error);
@@ -43,7 +43,7 @@ export async function getProductByProductname(
   callBack: Function
 ) {
   try {
-    const product = await Product.findOneBy({ product_name: product_name });
+    const product = await Product.findOneBy({ name: product_name });
     return callBack(null, product);
   } catch (error) {
     console.log(error);
@@ -65,7 +65,7 @@ export async function updateProduct(
       .createQueryBuilder()
       .update(Product)
       .set({
-        product_name: data.product_name,
+        name: data.product_name,
         amount: data.amount,
         price: data.price,
       })

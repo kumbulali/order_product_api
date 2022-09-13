@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = exports.UserRole = void 0;
 const typeorm_1 = require("typeorm");
+const Cart_1 = require("./Cart");
 const Order_1 = require("./Order");
 var UserRole;
 (function (UserRole) {
@@ -22,7 +23,7 @@ let User = class User extends typeorm_1.BaseEntity {
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], User.prototype, "user_id", void 0);
+], User.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         unique: true,
@@ -56,11 +57,16 @@ __decorate([
     __metadata("design:type", Date)
 ], User.prototype, "updated_at", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)((type) => Order_1.Order, (order) => order.order_id),
+    (0, typeorm_1.OneToMany)((type) => Cart_1.Cart, (cart) => cart.id),
+    (0, typeorm_1.JoinColumn)(),
+    __metadata("design:type", Array)
+], User.prototype, "cart", void 0);
+__decorate([
+    (0, typeorm_1.OneToOne)((type) => Order_1.Order, (order) => order.id),
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", Order_1.Order)
 ], User.prototype, "order", void 0);
 User = __decorate([
-    (0, typeorm_1.Entity)("users")
+    (0, typeorm_1.Entity)()
 ], User);
 exports.User = User;

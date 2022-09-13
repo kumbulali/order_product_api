@@ -3,12 +3,33 @@ import { dataSource } from "../config/dataSource";
 import { Order } from "../entities/Order";
 import { Product } from "../entities/Product";
 
-export async function createOrder(data: Order, callBack: Function) {
+export async function createOrder(
+  data: { user_id: number; items: { product_id: number; amount: number }[] },
+  callBack: Function
+) {
   try {
     var order = new Order();
-    order.user_id = data.user_id;
-    order.items = data.items;
-
+    var unexistProductIds: number[] = [];
+    var orderedProducts: Product[] = [];
+    data.items.forEach(async (product) => {
+      const productInstance: Product | null = await Product.findOneBy({
+        id: product.product_id,
+      });
+      if (productInstance != null) {
+        productInstance.amount = product.amount;
+        console.log(productInstance);
+        orderedProducts.push(productInstance);
+      } else {
+        unexistProductIds.push(product.product_id);
+      }
+    });
+    if (unexistProductIds.length != 0) {
+      throw Error(
+        `Some products unable to find with the given product ids. Missing product ids: ${unexistProductIds}`
+      );
+    }
+    order.id = data.user_id;
+    order.items = orderedProducts;
     await dataSource.manager.save(order);
     return callBack(null, order);
   } catch (error) {
@@ -29,7 +50,7 @@ export async function getAllOrders(callBack: Function) {
 
 export async function getOrderById(order_id: number, callBack: Function) {
   try {
-    const order = await Order.findOneBy({ order_id: order_id });
+    const order = await Order.findOneBy({ id: order_id });
     return callBack(null, order);
   } catch (error) {
     console.log(error);
@@ -42,7 +63,7 @@ export async function getAllOrdersOfUserId(
   callBack: Function
 ) {
   try {
-    const order = await Order.findBy({ user_id: user_id });
+    const order = await Order.findBy({ id: user_id });
     return callBack(null, order);
   } catch (error) {
     console.log(error);
@@ -63,7 +84,7 @@ export async function updateOrder(
       .createQueryBuilder()
       .update(Order)
       .set({
-        user_id: data.user_id,
+        id: data.user_id,
         items: data.items,
       })
       .where("order_id = :order_id", { order_id: order_id })
