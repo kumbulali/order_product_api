@@ -19,18 +19,24 @@ class AuthController {
     try {
       user = await userRepository.findOneOrFail({ where: { email } });
     } catch (error) {
-      res.status(401).send();
+      res.status(401).json({
+        success: 0,
+        message: error,
+      });
     }
 
     //Check if encrypted password match
     if (!user!.checkIfUnencryptedPasswordIsValid(password)) {
-      res.status(401).send();
+      res.status(401).json({
+        success: 0,
+        message: "Unauthorized user.",
+      });
       return;
     }
 
     //Sing JWT, valid for 1 hour
     const token = jwt.sign(
-      { userId: user!.id, email: user!.email },
+      { id: user!.id, email: user!.email },
       config.jwtSecret,
       { expiresIn: "1h" }
     );
@@ -41,7 +47,7 @@ class AuthController {
 
   static changePassword = async (req: Request, res: Response) => {
     //Get ID from JWT
-    const id = res.locals.jwtPayload.userId;
+    const id = res.locals.jwtPayload.id;
 
     //Get parameters from the body
     const { oldPassword, newPassword } = req.body;

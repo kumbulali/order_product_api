@@ -1,12 +1,25 @@
 import { Router } from "express";
 import ProductController from "../controllers/product.controller";
+import { checkJwt } from "../middlewares/checkJwt";
 
 const productRoutes = Router();
 
-productRoutes.post("/", ProductController.createProductController);
-productRoutes.get("/", ProductController.getAllProductsController);
-productRoutes.get("/:id", ProductController.getProductByIdController);
-productRoutes.patch("/:id", ProductController.updateProductController);
-productRoutes.delete("/:id", ProductController.deleteProductController);
+productRoutes.post("/", [checkJwt], ProductController.createProductController);
+productRoutes.get("/", [checkJwt], ProductController.getAllProductsController);
+productRoutes.get(
+  "/:id",
+  [checkJwt],
+  ProductController.getProductByIdController
+);
+productRoutes.patch(
+  "/:id",
+  [checkJwt],
+  ProductController.updateProductController
+);
+productRoutes.delete(
+  "/:id",
+  [checkJwt],
+  ProductController.deleteProductController
+);
 
 export default productRoutes;
