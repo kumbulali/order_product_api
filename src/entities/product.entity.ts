@@ -3,12 +3,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Cart } from "./Cart";
+import { Order } from "./order.entity";
+import { ProductToOrder } from "./productToOrder.entity";
 
 @Entity()
 export class Product extends BaseEntity {
@@ -19,18 +20,17 @@ export class Product extends BaseEntity {
   name: string;
 
   @Column({ nullable: true })
-  amount: number;
+  quantity: number;
+
+  @OneToMany(() => ProductToOrder, (productToOrder) => productToOrder.product)
+  productToOrder: ProductToOrder;
 
   @Column()
   price: number;
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
-
-  @OneToMany((type) => Cart, (cart) => cart.id)
-  @JoinColumn()
-  cart: Cart[];
+  updatedAt: Date;
 }

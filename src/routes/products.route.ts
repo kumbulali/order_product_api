@@ -4,7 +4,6 @@ import {
   deleteProductController,
   getAllProductsController,
   getProductByIdController,
-  getProductByProductnameController,
   updateProductController,
 } from "../controllers/product.controller";
 

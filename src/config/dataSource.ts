@@ -1,8 +1,8 @@
 import { DataSource } from "typeorm";
-import { Cart } from "../entities/Cart";
-import { Order } from "../entities/Order";
-import { Product } from "../entities/Product";
-import { User } from "../entities/User";
+import { Order } from "../entities/order.entity";
+import { Product } from "../entities/product.entity";
+import { ProductToOrder } from "../entities/productToOrder.entity";
+import { User } from "../entities/user.entity";
 
 export const dataSource = new DataSource({
   type: "postgres",
@@ -11,7 +11,7 @@ export const dataSource = new DataSource({
   username: "postgres",
   password: "postgres",
   database: "postgres",
-  entities: [User, Order, Product, Cart],
+  entities: [User, Order, Product, ProductToOrder],
   synchronize: true,
   logging: false,
 });

@@ -1,37 +1,56 @@
 import { UpdateResult } from "typeorm";
 import { dataSource } from "../config/dataSource";
-import { Order } from "../entities/Order";
-import { Product } from "../entities/Product";
+import { Order } from "../entities/order.entity";
+import { Product } from "../entities/product.entity";
+import { ProductToOrder } from "../entities/productToOrder.entity";
+import { User } from "../entities/user.entity";
+
+const orderRepository = dataSource.getRepository(Order);
+const productToOrderRepository = dataSource.getRepository(ProductToOrder);
 
 export async function createOrder(
-  data: { user_id: number; items: { product_id: number; amount: number }[] },
+  data: { user_id: number; items: { product_id: number; quantity: number }[] },
   callBack: Function
 ) {
   try {
-    var order = new Order();
-    var unexistProductIds: number[] = [];
-    var orderedProducts: Product[] = [];
-    data.items.forEach(async (product) => {
-      const productInstance: Product | null = await Product.findOneBy({
-        id: product.product_id,
-      });
-      if (productInstance != null) {
-        productInstance.amount = product.amount;
-        console.log(productInstance);
-        orderedProducts.push(productInstance);
+    var order = Order.create();
+    const userOfOrder = await User.findOneBy({
+      id: data.user_id,
+    }).then((user) => {
+      if (user) {
+        order.user = user;
       } else {
-        unexistProductIds.push(product.product_id);
+        return callBack(
+          Error(`Unable to find user. UserID ${data.user_id} does not exist.`)
+        );
       }
     });
-    if (unexistProductIds.length != 0) {
-      throw Error(
-        `Some products unable to find with the given product ids. Missing product ids: ${unexistProductIds}`
-      );
-    }
-    order.id = data.user_id;
-    order.items = orderedProducts;
-    await dataSource.manager.save(order);
-    return callBack(null, order);
+    await order.save();
+    data.items.forEach((item) => {
+      Product.findOneBy({ id: item.product_id }).then((product) => {
+        if (product) {
+          if (product.quantity >= item.quantity) {
+            const productToOrderInstance = new ProductToOrder();
+            productToOrderInstance.order = order;
+            productToOrderInstance.product = product;
+            productToOrderInstance.quantity = item.quantity;
+            product.quantity -= item.quantity;
+            product.save();
+            productToOrderInstance.save();
+          } else {
+            return callBack(Error(`Insufficient stock on ${product.name}.`));
+          }
+        } else {
+          return callBack(
+            Error(
+              `Unable to find product. Product ID ${item.product_id} does not exist.`
+            )
+          );
+        }
+      });
+    });
+    const savedOrder = await dataSource.manager.save(order);
+    return callBack(null, savedOrder);
   } catch (error) {
     console.log(error);
     return callBack(error);
@@ -63,7 +82,12 @@ export async function getAllOrdersOfUserId(
   callBack: Function
 ) {
   try {
-    const order = await Order.findBy({ id: user_id });
+    const order = await Order.find({
+      relations: {
+        user: true,
+        productToOrder: true,
+      },
+    });
     return callBack(null, order);
   } catch (error) {
     console.log(error);
@@ -75,25 +99,25 @@ export async function updateOrder(
   order_id: number,
   data: {
     user_id: number | undefined;
-    items: Product[] | undefined;
+    products: Product[] | undefined;
   },
   callBack: Function
 ) {
   try {
-    const order: UpdateResult = await dataSource
-      .createQueryBuilder()
-      .update(Order)
-      .set({
-        id: data.user_id,
-        items: data.items,
-      })
-      .where("order_id = :order_id", { order_id: order_id })
-      .execute();
-    console.log(order);
-    if (order.affected == 1) {
-      return callBack(null, "success");
-    }
-    return callBack(0, "failed");
+    // const order: UpdateResult = await dataSource
+    //   .createQueryBuilder()
+    //   .update(Order)
+    //   .set({
+    //     id: data.user_id,
+    //     products: data.products,
+    //   })
+    //   .where("order_id = :order_id", { order_id: order_id })
+    //   .execute();
+    // console.log(order);
+    // if (order.affected == 1) {
+    //   return callBack(null, "success");
+    // }
+    // return callBack(0, "failed");
   } catch (error) {
     console.log(error);
     return callBack(error);
