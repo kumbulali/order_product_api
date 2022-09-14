@@ -1,6 +1,8 @@
 import http from "http";
 import bodyParser from "body-parser";
 import express from "express";
+import helmet from "helmet";
+import cors from "cors";
 import logging from "./config/logging";
 import config from "./config/config";
 import userRoutes from "./routes/users.route";
@@ -37,9 +39,10 @@ router.use((req, res, next) => {
   next();
 });
 
-/** Parse the body of the request */
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
+router.use(cors());
+router.use(helmet());
 
 /** Rules of our API */
 router.use((req, res, next) => {

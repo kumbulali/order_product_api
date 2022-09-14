@@ -1,18 +1,16 @@
 import {
   BaseEntity,
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   Index,
-  JoinColumn,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Length } from "class-validator";
 import { Order } from "./order.entity";
+import bcrypt from "bcryptjs";
 
 export enum UserRole {
   ADMIN = "admin",
@@ -52,4 +50,12 @@ export class User extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  hashPassword() {
+    this.password = bcrypt.hashSync(this.password, 8);
+  }
+
+  checkIfUnencryptedPasswordIsValid(unencryptedPassword: string) {
+    return bcrypt.compareSync(unencryptedPassword, this.password);
+  }
 }

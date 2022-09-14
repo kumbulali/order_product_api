@@ -1,4 +1,3 @@
-import { UpdateResult } from "typeorm";
 import { dataSource } from "../config/dataSource";
 import { Order } from "../entities/order.entity";
 import { Product } from "../entities/product.entity";
@@ -142,7 +141,6 @@ class OrderService {
         return callBack("error", "An error occured when deleting.");
       }
       return callBack(null, "Successfully deleted.");
-      return callBack(null, result);
     } catch (error) {
       console.log(error);
       callBack(error);

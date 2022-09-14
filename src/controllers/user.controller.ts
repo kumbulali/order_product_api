@@ -1,5 +1,6 @@
 import UserService from "../services/user.service";
 import { NextFunction, Request, Response } from "express";
+import { validate } from "class-validator";
 
 class UserController {
   static createUserController = async (

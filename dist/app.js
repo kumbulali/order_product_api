@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_1 = __importDefault(require("http"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const express_1 = __importDefault(require("express"));
+const helmet_1 = __importDefault(require("helmet"));
+const cors_1 = __importDefault(require("cors"));
 const logging_1 = __importDefault(require("./config/logging"));
 const config_1 = __importDefault(require("./config/config"));
 const users_route_1 = __importDefault(require("./routes/users.route"));
@@ -31,9 +33,10 @@ router.use((req, res, next) => {
     });
     next();
 });
-/** Parse the body of the request */
 router.use(body_parser_1.default.urlencoded({ extended: true }));
 router.use(body_parser_1.default.json());
+router.use((0, cors_1.default)());
+router.use((0, helmet_1.default)());
 /** Rules of our API */
 router.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");

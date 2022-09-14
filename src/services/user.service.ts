@@ -9,12 +9,12 @@ class UserService {
     user.name = data.name;
     user.password = data.password;
     user.email = data.email;
+    user.hashPassword();
     //user.role = data.role | undefined;
     try {
       const savedUser = (await userRepository.save(user)) as User;
       return callBack(null, savedUser);
     } catch (error) {
-      console.log(error);
       return callBack(error);
     }
   };
@@ -24,7 +24,6 @@ class UserService {
       const users = await User.find();
       return callBack(null, users);
     } catch (error) {
-      console.log(error);
       return callBack(error);
     }
   };

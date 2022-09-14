@@ -11,10 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/bcryptjs": "^2.4.2",
-    "@types/cors": "^2.8.12",
-    "@types/helmet": "^4.0.0",
-    "@types/jsonwebtoken": "^8.5.9",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.0",
     "class-validator": "^0.13.2",
@@ -28,6 +24,10 @@
     "zod": "^3.19.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cors": "^2.8.12",
+    "@types/helmet": "^4.0.0",
+    "@types/jsonwebtoken": "^8.5.9",
     "@types/body-parser": "^1.19.2",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.13",
