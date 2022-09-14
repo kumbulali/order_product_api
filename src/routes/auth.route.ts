@@ -6,6 +6,9 @@ const authRoutes = Router();
 //Login route
 authRoutes.post("/login", AuthController.login);
 
+//Register route
+authRoutes.post("/register", AuthController.register);
+
 //Change my password
 authRoutes.post("/change-password", [checkJwt], AuthController.changePassword);
 

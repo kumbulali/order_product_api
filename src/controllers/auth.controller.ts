@@ -4,16 +4,15 @@ import { validate } from "class-validator";
 import config from "../config/config";
 import { dataSource } from "../config/dataSource";
 import { User } from "../entities/user.entity";
+import UserService from "../services/user.service";
 
 class AuthController {
   static login = async (req: Request, res: Response) => {
-    //Check if email and password are set
     let { email, password } = req.body;
     if (!(email && password)) {
       res.status(400).send();
     }
 
-    //Get user from database
     const userRepository = dataSource.getRepository(User);
     let user: User;
     try {
@@ -25,59 +24,121 @@ class AuthController {
       });
     }
 
-    //Check if encrypted password match
     if (!user!.checkIfUnencryptedPasswordIsValid(password)) {
       res.status(401).json({
         success: 0,
-        message: "Unauthorized user.",
+        message: "Password and email adress does not match.",
       });
       return;
     }
 
-    //Sing JWT, valid for 1 hour
     const token = jwt.sign(
       { id: user!.id, email: user!.email },
       config.jwtSecret,
       { expiresIn: "1h" }
     );
 
-    //Send the jwt in the response
-    res.send(token);
+    res.status(201).json({ success: 1, token: token });
+  };
+
+  static register = async (req: Request, res: Response) => {
+    let { email, password, passwordAgain } = req.body;
+    if (!(email && password && passwordAgain)) {
+      return res.status(400).json({
+        success: 0,
+        message: "There are some missing fields.",
+      });
+    }
+    if (password !== passwordAgain) {
+      return res.status(400).json({
+        success: 0,
+        message: "Passwords do not match.",
+      });
+    }
+    try {
+      UserService.createUser(req.body, (err: any, results: any) => {
+        if (err != null) {
+          if (err.code == 23505) {
+            return res.status(400).json({
+              success: 0,
+              message: "This email is already exists.",
+            });
+          }
+          if (err.code == 23502) {
+            return res.status(400).json({
+              success: 0,
+              message: `${err.column} field can not be empty.`,
+            });
+          }
+          if (err.code == "ECONNREFUSED") {
+            return res.status(500).json({
+              success: 0,
+              message: "Database connection error occured.",
+            });
+          }
+          return res.status(500).json({
+            success: 0,
+            message: err.message,
+          });
+        }
+        const user: User = results;
+        if (!user!.checkIfUnencryptedPasswordIsValid(password)) {
+          res.status(401).json({
+            success: 0,
+            message: "Unauthorized user.",
+          });
+          return;
+        }
+
+        const token = jwt.sign(
+          { id: user!.id, email: user!.email },
+          config.jwtSecret,
+          { expiresIn: "1h" }
+        );
+
+        return res.status(200).json({
+          success: 1,
+          data: token,
+        });
+      });
+    } catch (error) {
+      res.status(401).json({
+        success: 0,
+        message: "Unauthroized user.",
+      });
+    }
   };
 
   static changePassword = async (req: Request, res: Response) => {
-    //Get ID from JWT
     const id = res.locals.jwtPayload.id;
 
-    //Get parameters from the body
     const { oldPassword, newPassword } = req.body;
     if (!(oldPassword && newPassword)) {
-      res.status(400).send();
+      res.status(400).json({
+        success: 0,
+        message: "There are some missing fields.",
+      });
     }
 
-    //Get user from the database
     const userRepository = dataSource.getRepository(User);
     let user: User;
     try {
-      user = await userRepository.findOneOrFail(id);
+      user = await userRepository.findOneOrFail({ where: { id: id } });
     } catch (id) {
       res.status(401).send();
     }
 
-    //Check if old password matchs
     if (!user!.checkIfUnencryptedPasswordIsValid(oldPassword)) {
       res.status(401).send();
       return;
     }
 
-    //Validate de model (password lenght)
     user!.password = newPassword;
     const errors = await validate(user!);
     if (errors.length > 0) {
       res.status(400).send(errors);
       return;
     }
-    //Hash the new password and save
     user!.hashPassword();
     userRepository.save(user!);
 
