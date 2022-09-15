@@ -32,9 +32,14 @@ userRoutes.patch(
   UserController.updateUserController
 );
 userRoutes.delete(
-  "/:id",
+  "/id/:id",
   [checkJwt, checkRole([UserRole.ADMIN])],
   UserController.deleteUserController
+);
+userRoutes.delete(
+  "/email/:email",
+  [checkJwt, checkRole([UserRole.ADMIN])],
+  UserController.deleteUserByEmailController
 );
 
 export default userRoutes;

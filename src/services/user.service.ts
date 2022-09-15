@@ -102,6 +102,21 @@ class UserService {
       callBack(error);
     }
   };
+
+  static deleteUserByEmail = async (email: string, callBack: Function) => {
+    try {
+      const userToRemove = await userRepository.findOneBy({ email: email });
+      if (userToRemove instanceof User) {
+        await userRepository.remove(userToRemove);
+        return callBack(null, userToRemove);
+      } else {
+        return callBack(Error("Failed to remove user."));
+      }
+    } catch (error) {
+      console.log(error);
+      callBack(error);
+    }
+  };
 }
 
 export default UserService;

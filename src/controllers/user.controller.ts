@@ -151,6 +151,44 @@ class UserController {
     });
   };
 
+  static updateUserController = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const id = req.params.id;
+    const body = req.body;
+    UserService.updateUser(parseInt(id), body, (err: any, results: any) => {
+      if (err != null) {
+        if (err.code == 23505) {
+          return res.status(400).json({
+            success: 0,
+            message: "This email is already exists.",
+          });
+        }
+        if (err.code == 23502) {
+          return res.status(400).json({
+            success: 0,
+            message: `${err.column} field can not be empty.`,
+          });
+        }
+        if (err.code == "ECONNREFUSED") {
+          return res.status(500).json({
+            success: 0,
+            message: "Database connection error occured.",
+          });
+        }
+        return res.status(500).json({
+          success: 0,
+          message: err.message,
+        });
+      }
+      return res.status(200).json({
+        success: 1,
+        data: results,
+      });
+    });
+  };
   static deleteUserController = async (
     req: Request,
     res: Response,
@@ -188,15 +226,13 @@ class UserController {
       });
     });
   };
-
-  static updateUserController = async (
+  static deleteUserByEmailController = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
-    const id = req.params.id;
-    const body = req.body;
-    UserService.updateUser(parseInt(id), body, (err: any, results: any) => {
+    const email = req.params.email;
+    UserService.deleteUserByEmail(email, (err: any, results: any) => {
       if (err != null) {
         if (err.code == 23505) {
           return res.status(400).json({

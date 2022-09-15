@@ -4,9 +4,6 @@ import { Product } from "../entities/product.entity";
 import { ProductToOrder } from "../entities/productToOrder.entity";
 import { User } from "../entities/user.entity";
 
-const orderRepository = dataSource.getRepository(Order);
-const productToOrderRepository = dataSource.getRepository(ProductToOrder);
-
 class OrderService {
   static createOrder = async (
     data: {

@@ -1,28 +1,19 @@
-import http from "http";
 import bodyParser from "body-parser";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 import logging from "./config/logging";
-import config from "./config/config";
 import userRoutes from "./routes/users.route";
 import "reflect-metadata";
-import { dataSource } from "./config/dataSource";
 import productRoutes from "./routes/products.route";
 import orderRoutes from "./routes/order.route";
 import authRoutes from "./routes/auth.route";
 
 const NAMESPACE = "Server";
-const router = express();
+const app = express();
 
-dataSource
-  .initialize()
-  .then(() => {
-    console.log("Database connection established!");
-  })
-  .catch((error) => console.log(error));
 /** Log the request */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
   /** Log the req */
   logging.info(
     NAMESPACE,
@@ -40,13 +31,13 @@ router.use((req, res, next) => {
   next();
 });
 
-router.use(bodyParser.urlencoded({ extended: true }));
-router.use(bodyParser.json());
-router.use(cors());
-router.use(helmet());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors());
+app.use(helmet());
 
 /** Rules of our API */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
@@ -62,13 +53,13 @@ router.use((req, res, next) => {
 });
 
 /** Routes go here */
-router.use("/api/users", userRoutes);
-router.use("/api/auth", authRoutes);
-router.use("/api/products", productRoutes);
-router.use("/api/orders", orderRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 
 /** Error handling */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
   const error = new Error("Not found");
 
   res.status(404).json({
@@ -76,11 +67,4 @@ router.use((req, res, next) => {
   });
 });
 
-const httpServer = http.createServer(router);
-
-httpServer.listen(config.server.port, () =>
-  logging.info(
-    NAMESPACE,
-    `Server is running ${config.server.hostname}:${config.server.port}`
-  )
-);
+export default app;

@@ -53,7 +53,7 @@ class AuthController {
       { expiresIn: "1h" }
     );
 
-    return res.status(201).json({ success: 1, token: token });
+    return res.status(200).json({ success: 1, message: token });
   };
 
   static register = async (req: Request, res: Response) => {
@@ -150,7 +150,7 @@ class AuthController {
     }
 
     if (!user!.checkIfUnencryptedPasswordIsValid(oldPassword)) {
-      return res.status(401).json({
+      return res.status(400).json({
         success: 0,
         message: "Old password is invalid.",
       });

@@ -43,7 +43,7 @@ export class User extends BaseEntity {
   })
   role: UserRole;
 
-  @OneToMany((type) => Order, (order) => order.user)
+  @OneToMany((type) => Order, (order) => order.user, { cascade: true })
   orders: Order[];
 
   @CreateDateColumn()
