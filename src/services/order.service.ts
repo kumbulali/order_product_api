@@ -74,7 +74,15 @@ class OrderService {
 
   static getOrderById = async (order_id: number, callBack: Function) => {
     try {
-      const order = await Order.findOneBy({ id: order_id });
+      const order = await Order.find({
+        relations: {
+          user: true,
+          productToOrder: true,
+        },
+        where: {
+          id: order_id,
+        },
+      });
       return callBack(null, order);
     } catch (error) {
       console.log(error);

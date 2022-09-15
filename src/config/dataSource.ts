@@ -1,17 +1,13 @@
 import { DataSource } from "typeorm";
-import { Order } from "../entities/order.entity";
-import { Product } from "../entities/product.entity";
-import { ProductToOrder } from "../entities/productToOrder.entity";
-import { User } from "../entities/user.entity";
+import { database } from "./config";
 
 export const dataSource = new DataSource({
   type: "postgres",
-  host: "localhost",
-  port: 5432,
-  username: "postgres",
-  password: "postgres",
-  database: "postgres",
-  entities: [User, Order, Product, ProductToOrder],
+  host: database.host,
+  port: database.port,
+  username: database.username,
+  password: database.password,
+  database: database.name,
+  entities: [__dirname + "/../**/*.entity.js"],
   synchronize: true,
-  logging: false,
 });
