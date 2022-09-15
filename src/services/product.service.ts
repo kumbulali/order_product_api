@@ -10,6 +10,7 @@ class ProductService {
     product.name = data.name;
     product.quantity = data.quantity;
     product.price = data.price;
+    //ileride kullanıcılar kayıt olurken rol bilgisi de girilmek istenebilir.
     //product.role = data.role | undefined;
 
     try {

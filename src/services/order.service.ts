@@ -109,20 +109,6 @@ class OrderService {
     callBack: Function
   ) => {
     try {
-      // const order: UpdateResult = await dataSource
-      //   .createQueryBuilder()
-      //   .update(Order)
-      //   .set({
-      //     id: data.user_id,
-      //     products: data.products,
-      //   })
-      //   .where("order_id = :order_id", { order_id: order_id })
-      //   .execute();
-      // console.log(order);
-      // if (order.affected == 1) {
-      //   return callBack(null, "success");
-      // }
-      // return callBack(0, "failed");
     } catch (error) {
       console.log(error);
       return callBack(error);

@@ -4,10 +4,8 @@ import { User, UserRole } from "../entities/user.entity";
 
 export const checkRole = (roles: Array<UserRole>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
-    //Get the user ID from previous midleware
     const id = res.locals.jwtPayload.id;
 
-    //Get user role from the database
     const userRepository = dataSource.getRepository(User);
     let user: User;
     try {
@@ -19,7 +17,6 @@ export const checkRole = (roles: Array<UserRole>) => {
         error: err,
       });
     }
-    //Check if array of authorized roles includes the user's role
     if (roles.indexOf(user!.role) > -1) next();
     else
       res.status(401).json({
