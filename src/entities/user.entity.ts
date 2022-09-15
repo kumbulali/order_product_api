@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Length } from "class-validator";
+import { IsEmail, Length } from "class-validator";
 import { Order } from "./order.entity";
 import bcrypt from "bcryptjs";
 
@@ -33,6 +33,7 @@ export class User extends BaseEntity {
   @Column({
     unique: true,
   })
+  @IsEmail()
   email: string;
 
   @Column({

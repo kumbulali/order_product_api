@@ -1,16 +1,32 @@
 import { Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
-import { validate } from "class-validator";
+import { IsEmail, validate } from "class-validator";
 import config from "../config/config";
 import { dataSource } from "../config/dataSource";
 import { User } from "../entities/user.entity";
 import UserService from "../services/user.service";
-
+const validateEmail = (email: string) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
 class AuthController {
   static login = async (req: Request, res: Response) => {
     let { email, password } = req.body;
     if (!(email && password)) {
-      res.status(400).send();
+      return res.status(400).json({
+        success: 0,
+        message: "There are some missing fields.",
+      });
+    } else {
+      if (!validateEmail(email)) {
+        return res.status(400).json({
+          success: 0,
+          message: "Invalid email address.",
+        });
+      }
     }
 
     const userRepository = dataSource.getRepository(User);
@@ -18,18 +34,17 @@ class AuthController {
     try {
       user = await userRepository.findOneOrFail({ where: { email } });
     } catch (error) {
-      res.status(401).json({
+      return res.status(401).json({
         success: 0,
-        message: error,
+        message: "Email and password does not match.",
       });
     }
 
     if (!user!.checkIfUnencryptedPasswordIsValid(password)) {
-      res.status(401).json({
+      return res.status(401).json({
         success: 0,
         message: "Password and email adress does not match.",
       });
-      return;
     }
 
     const token = jwt.sign(
@@ -38,7 +53,7 @@ class AuthController {
       { expiresIn: "1h" }
     );
 
-    res.status(201).json({ success: 1, token: token });
+    return res.status(201).json({ success: 1, token: token });
   };
 
   static register = async (req: Request, res: Response) => {
@@ -48,8 +63,12 @@ class AuthController {
         success: 0,
         message: "There are some missing fields.",
       });
-    }
-    if (password !== passwordAgain) {
+    } else if (!validateEmail(email)) {
+      return res.status(400).json({
+        success: 0,
+        message: "Invalid email address.",
+      });
+    } else if (password !== passwordAgain) {
       return res.status(400).json({
         success: 0,
         message: "Passwords do not match.",
@@ -83,11 +102,10 @@ class AuthController {
         }
         const user: User = results;
         if (!user!.checkIfUnencryptedPasswordIsValid(password)) {
-          res.status(401).json({
+          return res.status(401).json({
             success: 0,
             message: "Unauthorized user.",
           });
-          return;
         }
 
         const token = jwt.sign(
@@ -102,7 +120,7 @@ class AuthController {
         });
       });
     } catch (error) {
-      res.status(401).json({
+      return res.status(401).json({
         success: 0,
         message: "Unauthroized user.",
       });
@@ -114,7 +132,7 @@ class AuthController {
 
     const { oldPassword, newPassword } = req.body;
     if (!(oldPassword && newPassword)) {
-      res.status(400).json({
+      return res.status(400).json({
         success: 0,
         message: "There are some missing fields.",
       });
@@ -125,24 +143,34 @@ class AuthController {
     try {
       user = await userRepository.findOneOrFail({ where: { id: id } });
     } catch (id) {
-      res.status(401).send();
+      return res.status(401).json({
+        success: 0,
+        message: "Unable to find user with that credentials.",
+      });
     }
 
     if (!user!.checkIfUnencryptedPasswordIsValid(oldPassword)) {
-      res.status(401).send();
-      return;
+      return res.status(401).json({
+        success: 0,
+        message: "Old password is invalid.",
+      });
     }
 
     user!.password = newPassword;
     const errors = await validate(user!);
     if (errors.length > 0) {
-      res.status(400).send(errors);
-      return;
+      return res.status(400).json({
+        success: 0,
+        message: errors,
+      });
     }
     user!.hashPassword();
     userRepository.save(user!);
 
-    res.status(204).send();
+    return res.status(202).json({
+      success: 1,
+      message: "Password successfully updated.",
+    });
   };
 }
 export default AuthController;

@@ -4,12 +4,14 @@ import * as jwt from "jsonwebtoken";
 
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   //Get the jwt token from the head
-  const token = <string>req.headers["auth"];
+  const token = <string>req.headers["authorization"];
+
   let jwtPayload;
 
   //Try to validate the token and get data
   try {
-    jwtPayload = <any>jwt.verify(token, config.jwtSecret);
+    const bearerToken = token.slice(7);
+    jwtPayload = <any>jwt.verify(bearerToken, config.jwtSecret);
     res.locals.jwtPayload = jwtPayload;
   } catch (error) {
     //If token is not valid, respond with 401 (unauthorized)
@@ -20,8 +22,6 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
     return;
   }
 
-  //The token is valid for 1 hour
-  //We want to send a new token on every request
   const { id, email } = jwtPayload;
   const newToken = jwt.sign({ id, email }, config.jwtSecret, {
     expiresIn: "1h",
